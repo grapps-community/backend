@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
 import { VideoController } from './controller/video.controller';
 import { VideoService } from './service/video.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Video } from './entity/video.entity';
+import { SupabaseModule } from '../common/supabase/supabase.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Video])],
+  imports: [SupabaseModule],
   controllers: [VideoController],
   providers: [VideoService],
 })
