@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateVideoDto } from '../dto/create-video.dto';
 import { Supabase } from '../../common/supabase/supabase';
 
@@ -7,7 +7,12 @@ export class VideoService {
   constructor(private readonly supabase: Supabase) {}
 
   public async createVideo(createVideoDto: CreateVideoDto) {
-    console.log(createVideoDto);
+    const videoSource = this.classifyVideoSource(createVideoDto.url);
+
+    if (videoSource === 'unknown') {
+      throw new BadRequestException('올바르지 않은 영상 소스입니다.');
+    }
+
     // const { data, error } = await this.supabase
     //   .getClient()
     //   .from('Video')
@@ -15,5 +20,20 @@ export class VideoService {
 
     // if (error) throw error;
     // return data;
+  }
+
+  private classifyVideoSource(url) {
+    const patterns = {
+      'youtube-full': /youtube\.com\/watch\?v=/,
+      'youtube-shorts': /youtube\.com\/shorts\//,
+    };
+
+    for (const type in patterns) {
+      if (patterns[type].test(url)) {
+        return type;
+      }
+    }
+
+    return 'unknown';
   }
 }
